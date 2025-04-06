@@ -2,10 +2,10 @@
     "name": "mindhaven-api",
     "version": "1.0.0",
     "description": "MindHaven API Server",
-    "main": "dist/index.js",
+    "main": "nodemon /index.ts",
     "scripts": {
         "start": "node dist/index.js",
-        "dev": "nodemon src/index.ts",
+        "dev": "nodemon /index.ts",
         "build": "tsc",
         "test": "jest"
     },
