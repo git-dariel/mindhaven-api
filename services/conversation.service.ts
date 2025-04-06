@@ -10,21 +10,27 @@ const ConversationService = {
 export default ConversationService;
 
 /**
- * Generates a spoken response using Gemini and TTS
+ * Generates a spoken response using Gemini and TTS in parallel
  */
 async function generateSpeechResponse(prompt: string) {
   try {
-    // First, get the text response from Gemini
-    const textResponse = await GeminiService.generateResponse(prompt);
+    // Get the text response from Gemini
+    const textResponsePromise = GeminiService.generateResponse(prompt);
+
+    // Wait for the text response
+    const textResponse = await textResponsePromise;
 
     // Format the response for TTS while preserving paragraphs
     const formattedText = formatForTTS(textResponse);
 
-    // Then convert the response to speech
-    const audioContent = await TTSService.synthesizeSpeech(formattedText);
+    // Start TTS conversion immediately after formatting
+    const audioPromise = TTSService.synthesizeSpeech(formattedText);
+
+    // Wait for audio conversion to complete
+    const audioContent = await audioPromise;
 
     return {
-      text: textResponse, // Return full text response
+      text: textResponse,
       audio: audioContent,
       isTruncated: formattedText.length < textResponse.length,
     };
@@ -35,23 +41,29 @@ async function generateSpeechResponse(prompt: string) {
 }
 
 /**
- * Generates a mental health focused spoken response
+ * Generates a mental health focused spoken response with parallel processing
  */
 async function generateSupportiveSpeechResponse(input: string) {
   try {
-    // First, get the supportive text response from Gemini
-    const textResponse = await GeminiService.generateSupportiveResponse(input);
+    // Get the supportive text response from Gemini
+    const textResponsePromise = GeminiService.generateSupportiveResponse(input);
+
+    // Wait for the text response
+    const textResponse = await textResponsePromise;
 
     // Format the response for TTS while preserving paragraphs
     const formattedText = formatForTTS(textResponse);
 
-    console.log("Formatted text for TTS:", formattedText);
+    console.log("Formatted Text for TTS:", formattedText);
 
-    // Then convert the response to speech
-    const audioContent = await TTSService.synthesizeSpeech(formattedText);
+    // Start TTS conversion immediately after formatting
+    const audioPromise = TTSService.synthesizeSpeech(formattedText);
+
+    // Wait for audio conversion to complete
+    const audioContent = await audioPromise;
 
     return {
-      text: textResponse, // Return full text response
+      text: textResponse,
       audio: audioContent,
       isTruncated: formattedText.length < textResponse.length,
     };

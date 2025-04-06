@@ -1,11 +1,6 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import { generalModel, supportiveModel } from "../utils/gemini.utils";
 import { MENTAL_HEALTH_GUIDELINES } from "../config/common";
 import { cleanResponseText } from "../helper/common";
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
-
-// Initialize the Gemini AI model
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const GeminiService = {
   generateResponse,
@@ -19,20 +14,10 @@ export default GeminiService;
  */
 async function generateResponse(prompt: string) {
   try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 250,
-      },
-    });
+    // Simple, direct prompt for faster response
+    const enhancedPrompt = `Brief response: ${prompt}`;
 
-    // Add context for better responses
-    const enhancedPrompt = `Please provide a brief (1-2 paragraphs) response to: ${prompt}\n\nMake sure to match the language of the question (English or Filipino) and focus on one key point or suggestion.`;
-
-    const result = await model.generateContent(enhancedPrompt);
+    const result = await generalModel.generateContent(enhancedPrompt);
     const response = await result.response;
     return cleanResponseText(response.text());
   } catch (error) {
@@ -46,34 +31,10 @@ async function generateResponse(prompt: string) {
  */
 async function generateSupportiveResponse(userInput: string) {
   try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 250,
-      },
-      safetySettings: [
-        {
-          category: "HARM_CATEGORY_HARASSMENT" as HarmCategory,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-          category: "HARM_CATEGORY_HATE_SPEECH" as HarmCategory,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-          category: "HARM_CATEGORY_DANGEROUS_CONTENT" as HarmCategory,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-      ],
-    });
+    // Direct prompt focused on actionable suggestion
+    const fullPrompt = `${MENTAL_HEALTH_GUIDELINES}\n\nUser: ${userInput}\n\nProvide a brief empathetic response with one clear suggestion:`;
 
-    // Combine the guidelines with the user input
-    const fullPrompt = `${MENTAL_HEALTH_GUIDELINES}\n\nUser Input: ${userInput}\n\nProvide a brief response (1-2 paragraphs maximum) that includes:\n1. An empathetic acknowledgment\n2. One clear, actionable suggestion\n\nResponse:`;
-
-    const result = await model.generateContent(fullPrompt);
+    const result = await supportiveModel.generateContent(fullPrompt);
     const response = await result.response;
     return cleanResponseText(response.text());
   } catch (error) {
