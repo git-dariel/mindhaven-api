@@ -1,5 +1,4 @@
 import { client } from "../helper/tts.helper";
-import { wrapWithSSML } from "../utils/tts.utils";
 
 const TTSService = {
   synthesizeSpeech,
@@ -7,14 +6,14 @@ const TTSService = {
 
 export default TTSService;
 
-async function synthesizeSpeech(text: string, ssml = false) {
+async function synthesizeSpeech(text: string) {
   try {
     const request = {
-      input: ssml ? { ssml: text } : { ssml: wrapWithSSML(text) },
+      input: { text },
       voice: {
         languageCode: "en-US",
-        name: "en-US-Neural2-D",
-        ssmlGender: "MALE" as const,
+        name: "en-US-Chirp-HD-F",
+        ssmlGender: "FEMALE" as const,
       },
       audioConfig: {
         audioEncoding: "MP3" as const,

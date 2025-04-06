@@ -9,13 +9,13 @@ export default TTSController;
 
 async function synthesize(req: Request, res: Response) {
   try {
-    const { text, ssml = false } = req.body;
+    const { text } = req.body;
 
     if (!text) {
       return res.status(400).json({ error: "Text is required" });
     }
 
-    const audioContent = await TTSService.synthesizeSpeech(text, ssml);
+    const audioContent = await TTSService.synthesizeSpeech(text);
 
     if (!audioContent || !(audioContent instanceof Buffer)) {
       throw new Error("Invalid audio content received");
