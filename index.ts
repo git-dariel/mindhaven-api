@@ -1,7 +1,11 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import ttsRoutes from "./routes/tts.routes";
+import geminiRoutes from "./routes/gemini.routes";
+import serverRoutes from "./routes/server.routes";
+import conversationRoutes from "./routes/conversation.routes";
 import { config } from "./config/common";
 
 const app = express();
@@ -19,7 +23,10 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Routes
-app.use("/api", ttsRoutes);
+app.use("/api", serverRoutes);
+app.use("/api/tts", ttsRoutes);
+app.use("/api/gemini", geminiRoutes);
+app.use("/api/conversation", conversationRoutes);
 
 // Error handling
 app.use((err: Error, _req: express.Request, res: express.Response, next: express.NextFunction) => {

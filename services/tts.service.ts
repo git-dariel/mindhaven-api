@@ -12,8 +12,8 @@ async function synthesizeSpeech(text: string) {
       input: { text },
       voice: {
         languageCode: "en-US",
-        name: "en-US-Chirp-HD-F",
-        ssmlGender: "FEMALE" as const,
+        name: "en-US-Chirp-HD-D",
+        ssmlGender: "MALE" as const,
       },
       audioConfig: {
         audioEncoding: "MP3" as const,
