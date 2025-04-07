@@ -6,7 +6,7 @@ import ttsRoutes from "./routes/tts.routes";
 import geminiRoutes from "./routes/gemini.routes";
 import serverRoutes from "./routes/server.routes";
 import conversationRoutes from "./routes/conversation.routes";
-import { errorHandler } from "./middleware";
+import { errorHandler } from "./middleware/errorHandler";
 import { config } from "./config/common";
 import prisma from "./config/database";
 
