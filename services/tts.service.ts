@@ -6,7 +6,7 @@ import { config } from "../config/common";
 const ttsCache = new NodeCache({
   stdTTL: 3600,
   checkperiod: 600,
-  useClones: false, // Disable cloning for better performance
+  useClones: false,
 });
 
 const TTSService = {
@@ -76,16 +76,16 @@ async function synthesizeChunk(text: string): Promise<Buffer | null> {
     input: { text },
     voice: {
       languageCode: "en-US",
-      name: "en-US-Chirp-HD-D",
-      ssmlGender: "MALE" as const,
+      name: "en-US-Chirp-HD-F",
+      ssmlGender: "FEMALE" as const,
     },
     audioConfig: {
       audioEncoding: "MP3" as const,
-      effectsProfileId: ["headphone-class-device"], // Changed to headphone profile for faster processing
-      speakingRate: 1.1, // Slightly increased for faster output
+      effectsProfileId: ["headphone-class-device"],
+      speakingRate: 1.0,
       pitch: 0,
       volumeGainDb: 2.0,
-      sampleRateHertz: 16000, // Further reduced for faster processing
+      sampleRateHertz: 16000,
       optimizeForTurnaround: true,
     },
   };

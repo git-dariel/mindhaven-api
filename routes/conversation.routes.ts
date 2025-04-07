@@ -3,7 +3,14 @@ import ConversationController from "../controllers/conversation.controller";
 
 const router = Router();
 
-router.post("/chat", ConversationController.generateSpeechResponse);
-router.post("/support-chat", ConversationController.generateSupportiveSpeechResponse);
+// Speech generation routes
+router.post("/create/normal", ConversationController.generateSpeechResponse);
+router.post("/create/supportive", ConversationController.generateSupportiveSpeechResponse);
+
+// Conversation management routes
+router.get("/get/all", ConversationController.getAllConversations);
+router.get("/search", ConversationController.searchConversations);
+router.get("/get/:id", ConversationController.getConversation);
+router.delete("/delete/:id", ConversationController.deleteConversation);
 
 export default router;
