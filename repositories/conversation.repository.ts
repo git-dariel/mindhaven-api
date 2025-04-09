@@ -1,12 +1,12 @@
 import prisma from "../config/database";
 
 const ConversationRepository = {
-  findById,
-  findAll,
-  create,
-  delete: deleteConversation,
-  search,
-  addMessage,
+  getConversationById,
+  getAllConversations,
+  createConversation,
+  deleteConversation,
+  searchConversation,
+  updateConversation,
 };
 
 export default ConversationRepository;
@@ -14,7 +14,7 @@ export default ConversationRepository;
 /**
  * Find a conversation by its ID
  */
-async function findById(id: string) {
+async function getConversationById(id: string) {
   try {
     return await prisma.conversation.findUnique({
       where: { id },
@@ -28,7 +28,7 @@ async function findById(id: string) {
 /**
  * Find all conversations, optionally filtered by userId
  */
-async function findAll(userId?: string, includeArchived: boolean = false) {
+async function getAllConversations(userId?: string, includeArchived: boolean = false) {
   try {
     return await prisma.conversation.findMany({
       where: {
@@ -48,7 +48,7 @@ async function findAll(userId?: string, includeArchived: boolean = false) {
 /**
  * Create a new conversation with initial message
  */
-async function create(data: {
+async function createConversation(data: {
   userId?: string;
   title?: string;
   initialMessage: {
@@ -84,7 +84,7 @@ async function create(data: {
 /**
  * Add a new message to an existing conversation
  */
-async function addMessage(
+async function updateConversation(
   conversationId: string,
   message: {
     content: string;
@@ -147,7 +147,7 @@ async function deleteConversation(id: string) {
 /**
  * Search conversations by title or message content, optionally filtered by userId
  */
-async function search(query: string, userId?: string) {
+async function searchConversation(query: string, userId?: string) {
   try {
     return await prisma.conversation.findMany({
       where: {
