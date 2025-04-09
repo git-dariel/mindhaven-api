@@ -26,7 +26,7 @@ async function synthesizeSpeech(text: string) {
       (content): content is Buffer => content !== null
     );
 
-    const periodSilence = Buffer.from(new Array(1280).fill(0x00));
+    const periodSilence = Buffer.from(new Array(2580).fill(0x00));
     const chunkSilence = Buffer.from(new Array(1200).fill(0x00));
 
     const fadeLength = 800;
@@ -62,7 +62,7 @@ async function synthesizeChunk(text: string): Promise<Buffer | null> {
     input: { text },
     voice: {
       languageCode: "en-US",
-      name: "en-US-Chirp-HD-F",
+      name: "en-US-Chirp-HD-D",
       ssmlGender: "FEMALE" as const,
     },
     audioConfig: {
