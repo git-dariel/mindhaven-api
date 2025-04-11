@@ -1,3 +1,4 @@
+import { Conversation } from "../types/conversation.types";
 import prisma from "../config/database";
 
 const ConversationRepository = {
@@ -11,9 +12,6 @@ const ConversationRepository = {
 
 export default ConversationRepository;
 
-/**
- * Find a conversation by its ID
- */
 async function getConversationById(id: string) {
   try {
     return await prisma.conversation.findUnique({
@@ -25,19 +23,22 @@ async function getConversationById(id: string) {
   }
 }
 
-/**
- * Find all conversations, optionally filtered by userId
- */
-async function getAllConversations(userId?: string, includeArchived: boolean = false) {
+async function getAllConversations(params: {
+  userId?: string;
+  isArchived?: boolean;
+  orderBy?: { [key: string]: string };
+}) {
   try {
     return await prisma.conversation.findMany({
-      where: {
-        ...(userId ? { userId } : {}),
-        isArchived: includeArchived ? undefined : false,
-      },
-      orderBy: {
-        lastMessage: "desc",
-      },
+      where: params.userId
+        ? {
+            userId: params.userId,
+            isArchived: params.isArchived,
+          }
+        : {
+            isArchived: params.isArchived,
+          },
+      orderBy: params.orderBy,
     });
   } catch (error) {
     console.error("Error finding all conversations:", error);
@@ -45,35 +46,10 @@ async function getAllConversations(userId?: string, includeArchived: boolean = f
   }
 }
 
-/**
- * Create a new conversation with initial message
- */
-async function createConversation(data: {
-  userId?: string;
-  title?: string;
-  initialMessage: {
-    content: string;
-    role: string;
-  };
-}) {
+async function createConversation(data: Partial<Conversation>) {
   try {
-    const now = new Date();
     return await prisma.conversation.create({
-      data: {
-        userId: data.userId || null,
-        title: data.title || null,
-        messages: [
-          {
-            content: data.initialMessage.content,
-            role: data.initialMessage.role,
-            createdAt: now,
-          },
-        ],
-        createdAt: now,
-        updatedAt: now,
-        lastMessage: now,
-        isArchived: false,
-      },
+      data,
     });
   } catch (error) {
     console.error("Error creating conversation:", error);
@@ -81,45 +57,11 @@ async function createConversation(data: {
   }
 }
 
-/**
- * Add a new message to an existing conversation
- */
-async function updateConversation(
-  conversationId: string,
-  message: {
-    content: string;
-    role: string;
-  }
-) {
+async function updateConversation(id: string, data: Partial<Conversation>) {
   try {
-    const now = new Date();
-
-    // First, get current conversation to access its messages
-    const conversation = await prisma.conversation.findUnique({
-      where: { id: conversationId },
-    });
-
-    if (!conversation) {
-      throw new Error("Conversation not found");
-    }
-
-    // Add the new message to the messages array
-    const updatedMessages = [
-      ...(conversation.messages || []),
-      {
-        content: message.content,
-        role: message.role,
-        createdAt: now,
-      },
-    ];
-
     return await prisma.conversation.update({
-      where: { id: conversationId },
-      data: {
-        messages: updatedMessages,
-        lastMessage: now,
-        updatedAt: now,
-      },
+      where: { id },
+      data,
     });
   } catch (error) {
     console.error("Error adding message to conversation:", error);
@@ -127,9 +69,6 @@ async function updateConversation(
   }
 }
 
-/**
- * Soft delete a conversation by marking it as archived
- */
 async function deleteConversation(id: string) {
   try {
     return await prisma.conversation.update({
@@ -144,9 +83,6 @@ async function deleteConversation(id: string) {
   }
 }
 
-/**
- * Search conversations by title or message content, optionally filtered by userId
- */
 async function searchConversation(query: string, userId?: string) {
   try {
     return await prisma.conversation.findMany({

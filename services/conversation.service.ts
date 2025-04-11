@@ -9,57 +9,94 @@ const ConversationService = {
   getConversationById,
   getAllConversations,
   createConversation,
+  updateConversation,
   deleteConversation,
   searchConversations,
 };
 
 export default ConversationService;
 
-/**
- * Get a conversation by ID with all messages
- */
 async function getConversationById(id: string) {
   return await ConversationRepository.getConversationById(id);
 }
 
-/**
- * Get all conversations, optionally filtered by userId
- */
 async function getAllConversations(userId?: string, includeArchived: boolean = false) {
-  return await ConversationRepository.getAllConversations(userId, includeArchived);
+  try {
+    const params = {
+      userId,
+      isArchived: includeArchived ? undefined : false,
+      orderBy: { lastMessage: "desc" },
+    };
+
+    const conversations = await ConversationRepository.getAllConversations(params);
+
+    return conversations;
+  } catch (error) {
+    console.error("Error getting all conversations:", error);
+    throw error;
+  }
 }
 
-/**
- * Create a new conversation
- */
 async function createConversation(data: {
   userId?: string;
   title?: string;
-  initialMessage: {
+  messages?: {
     content: string;
     role: string;
-  };
+    createdAt?: Date;
+  }[];
 }) {
-  return await ConversationRepository.createConversation(data);
+  return await ConversationRepository.createConversation({
+    userId: data.userId,
+    title: data.title,
+    messages: data.messages || [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    lastMessage: new Date(),
+    isArchived: false,
+  });
 }
 
-/**
- * Delete a conversation (soft delete)
- */
+async function updateConversation(
+  conversationId: string,
+  message: { content: string; role: string }
+) {
+  try {
+    const now = new Date();
+
+    const conversation = await ConversationRepository.getConversationById(conversationId);
+    if (!conversation) {
+      throw new Error("Conversation not found");
+    }
+
+    const updatedMessages = [
+      ...(conversation.messages || []),
+      {
+        content: message.content,
+        role: message.role,
+        createdAt: now,
+      },
+    ];
+
+    return await ConversationRepository.updateConversation(conversationId, {
+      messages: updatedMessages,
+      lastMessage: now,
+      updatedAt: now,
+    });
+  } catch (error) {
+    console.error("Error updating conversation:", error);
+    throw error;
+  }
+}
+
 async function deleteConversation(id: string) {
   return await ConversationRepository.deleteConversation(id);
 }
 
-/**
- * Search conversations
- */
 async function searchConversations(query: string, userId?: string) {
   return await ConversationRepository.searchConversation(query, userId);
 }
 
-/**
- * Generates a spoken response using Gemini and TTS in parallel
- */
 async function generateSpeechResponse(prompt: string, userId?: string) {
   try {
     // Generate a title based on the user's prompt
@@ -75,10 +112,13 @@ async function generateSpeechResponse(prompt: string, userId?: string) {
     const conversationResult = await ConversationRepository.createConversation({
       userId,
       title,
-      initialMessage: {
-        content: prompt,
-        role: "user",
-      },
+      messages: [
+        {
+          content: prompt,
+          role: "user",
+          createdAt: new Date(),
+        },
+      ],
     });
 
     // Extract the conversation ID
@@ -100,7 +140,7 @@ async function generateSpeechResponse(prompt: string, userId?: string) {
     const audioContent = await audioPromise;
 
     // Add the assistant's response as a new message
-    await ConversationRepository.updateConversation(conversationId, {
+    await ConversationService.updateConversation(conversationId, {
       content: textResponse,
       role: "assistant",
     });
@@ -117,10 +157,6 @@ async function generateSpeechResponse(prompt: string, userId?: string) {
   }
 }
 
-/**
- * Generates a mental health focused spoken response with parallel processing
- * and stores the conversation with both user input and assistant response
- */
 async function generateSupportiveSpeechResponse(input: string, userId?: string) {
   try {
     // Start all async operations in parallel immediately
@@ -145,16 +181,19 @@ async function generateSupportiveSpeechResponse(input: string, userId?: string) 
       const conversationResult = await ConversationRepository.createConversation({
         userId,
         title,
-        initialMessage: {
-          content: input,
-          role: "user",
-        },
+        messages: [
+          {
+            content: input,
+            role: "user",
+            createdAt: new Date(),
+          },
+        ],
       });
 
       const conversationId = extractInsertedId(conversationResult);
 
       // Add the assistant's response
-      await ConversationRepository.updateConversation(conversationId, {
+      await ConversationService.updateConversation(conversationId, {
         content: textResponse,
         role: "assistant",
       });
