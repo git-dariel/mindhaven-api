@@ -3,7 +3,7 @@ export const config = {
     WELCOME: "Welcome to the Text-to-Speech API.",
   },
 
-  PORT: 5000,
+  PORT: 5001,
 
   MAX_RESPONSE_LENGTH: 1000,
 

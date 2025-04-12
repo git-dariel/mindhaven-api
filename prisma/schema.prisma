@@ -1,0 +1,48 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Status {
+  active
+  inactive
+  suspended
+  deleted
+}
+
+model User {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentNumber  String
+  email          String   @unique
+  userName       String
+  firstName      String
+  lastName       String
+  middleName     String?
+  status         Status
+  profilePicture String
+  password       String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+type Message {
+  content   String
+  role      String // 'user' or 'assistant'
+  createdAt DateTime @default(now())
+}
+
+model Conversation {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String? // Made optional
+  title       String? // Optional title for the conversation
+  messages    Message[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+  lastMessage DateTime  @default(now()) // Track last message time
+  isArchived  Boolean   @default(false) // For soft delete
+}

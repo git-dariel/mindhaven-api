@@ -2,6 +2,7 @@ import GeminiService from "./gemini.service";
 import TTSService from "./tts.service";
 import { formatForTTS, extractInsertedId } from "../helper/common";
 import ConversationRepository from "../repositories/conversation.repository";
+import { MessageRole, Message } from "../types/conversation.types";
 
 const ConversationService = {
   generateSpeechResponse,
@@ -42,7 +43,7 @@ async function createConversation(data: {
   title?: string;
   messages?: {
     content: string;
-    role: string;
+    role: MessageRole;
     createdAt?: Date;
   }[];
 }) {
@@ -59,7 +60,7 @@ async function createConversation(data: {
 
 async function updateConversation(
   conversationId: string,
-  message: { content: string; role: string }
+  message: { content: string; role: MessageRole }
 ) {
   try {
     const now = new Date();
@@ -69,14 +70,14 @@ async function updateConversation(
       throw new Error("Conversation not found");
     }
 
-    const updatedMessages = [
-      ...(conversation.messages || []),
-      {
-        content: message.content,
-        role: message.role,
-        createdAt: now,
-      },
-    ];
+    const existingMessages = (conversation.messages || []) as Message[];
+    const newMessage: Message = {
+      content: message.content,
+      role: message.role,
+      createdAt: now,
+    };
+
+    const updatedMessages: Message[] = [...existingMessages, newMessage];
 
     return await ConversationRepository.updateConversation(conversationId, {
       messages: updatedMessages,
@@ -115,7 +116,7 @@ async function generateSpeechResponse(prompt: string, userId?: string) {
       messages: [
         {
           content: prompt,
-          role: "user",
+          role: MessageRole.USER,
           createdAt: new Date(),
         },
       ],
@@ -142,7 +143,7 @@ async function generateSpeechResponse(prompt: string, userId?: string) {
     // Add the assistant's response as a new message
     await ConversationService.updateConversation(conversationId, {
       content: textResponse,
-      role: "assistant",
+      role: MessageRole.ASSISTANT,
     });
 
     return {
@@ -184,7 +185,7 @@ async function generateSupportiveSpeechResponse(input: string, userId?: string) 
         messages: [
           {
             content: input,
-            role: "user",
+            role: MessageRole.USER,
             createdAt: new Date(),
           },
         ],
@@ -195,7 +196,7 @@ async function generateSupportiveSpeechResponse(input: string, userId?: string) 
       // Add the assistant's response
       await ConversationService.updateConversation(conversationId, {
         content: textResponse,
-        role: "assistant",
+        role: MessageRole.ASSISTANT,
       });
 
       return conversationId;

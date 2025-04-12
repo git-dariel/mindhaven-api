@@ -1,6 +1,11 @@
+export enum MessageRole {
+  USER = 'user',
+  ASSISTANT = 'assistant',
+}
+
 export type Message = {
   content: string;
-  role: string;
+  role: MessageRole;
   createdAt?: Date;
 };
 

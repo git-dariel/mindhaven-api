@@ -6,6 +6,7 @@ import ttsRoutes from "./routes/tts.routes";
 import geminiRoutes from "./routes/gemini.routes";
 import serverRoutes from "./routes/server.routes";
 import conversationRoutes from "./routes/conversation.routes";
+import userRoutes from "./routes/user.routes";
 import { errorHandler } from "./middleware/errorHandler";
 import { config } from "./config/common";
 import prisma from "./config/database";
@@ -29,6 +30,7 @@ app.use("/api", serverRoutes);
 app.use("/api/tts", ttsRoutes);
 app.use("/api/gemini", geminiRoutes);
 app.use("/api/conversation", conversationRoutes);
+app.use("/api/user", userRoutes);
 
 // Error handling
 app.use(errorHandler);
