@@ -10,6 +10,7 @@ import userRoutes from "./routes/user.routes";
 import { errorHandler } from "./middleware/errorHandler";
 import { config } from "./config/common";
 import prisma from "./config/database";
+import testUpload from "./scripts/test.upload";
 
 const app = express();
 const port = process.env.PORT || config.PORT;
@@ -31,6 +32,7 @@ app.use("/api/tts", ttsRoutes);
 app.use("/api/gemini", geminiRoutes);
 app.use("/api/conversation", conversationRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/test", testUpload);
 
 // Error handling
 app.use(errorHandler);
