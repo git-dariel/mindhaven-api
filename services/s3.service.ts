@@ -1,18 +1,39 @@
-import s3 from "../helper/aws";
-import { ManagedUpload } from "aws-sdk/clients/s3";
-import fs from "fs";
+// import { ManagedUpload } from "aws-sdk/clients/s3";
+// import fs from "fs";
+// import mime from "mime-types";
+// import s3 from "../helper/aws";
 
-export const uploadFile = async (
-  filePath: string,
-  fileName: string
-): Promise<ManagedUpload.SendData> => {
-  const fileStream = fs.createReadStream(filePath);
+// const CLOUD_FRONT_URL = process.env.CLOUDFRONT_URL!;
 
-  const uploadParams = {
-    Bucket: process.env.AWS_BUCKET_NAME!,
-    Key: fileName,
-    Body: fileStream,
-  };
+// export const uploadFile = async (
+//   filePath: string,
+//   fileName: string
+// ): Promise<{ url: string; s3Response: ManagedUpload.SendData }> => {
+//   const fileStream = fs.createReadStream(filePath);
+//   const contentType = mime.lookup(filePath) || "application/octet-stream";
+//   const isViewableType = /\.(jpg|jpeg|png|gif|webp|pdf)$/i.test(fileName);
+//   const contentDisposition = isViewableType ? "inline" : "attachment";
 
-  return s3.upload(uploadParams).promise();
-};
+//   const uploadParams = {
+//     Bucket: process.env.AWS_BUCKET_NAME!,
+//     Key: `uploads/${fileName}`,
+//     Body: fileStream,
+//     ContentType: contentType,
+//     CacheControl: "max-age=31536000, public",
+//     ACL: "private",
+//     "Content-Disposition": contentDisposition,
+//     Metadata: {
+//       "original-filename": fileName,
+//       "content-type": contentType,
+//       "is-viewable": isViewableType.toString(),
+//     },
+//   };
+
+//   const s3Response = await s3.upload(uploadParams).promise();
+//   const cloudFrontUrl = `${CLOUD_FRONT_URL}/uploads/${fileName}`;
+
+//   return {
+//     url: cloudFrontUrl,
+//     s3Response,
+//   };
+// };

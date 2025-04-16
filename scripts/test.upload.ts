@@ -1,17 +1,35 @@
-import express from "express";
+import express, { Request, Response } from "express";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { bucketName, s3 } from "../helper/aws";
 import multer from "multer";
-import { uploadFile } from "../services/s3.service";
 
 const router = express.Router();
-const upload = multer({ dest: "uploads/" }); // temp local storage
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-router.post("/upload", upload.single("file"), async (req, res) => {
+router.post("/upload", upload.single("file"), async (req: Request, res: Response) => {
   try {
-    const filePath = req.file?.path!;
-    const fileName = `uploads/${Date.now()}_${req.file?.originalname}`;
+    console.log("req.body", req.body);
+    console.log("req.file", req.file);
 
-    const result = await uploadFile(filePath, fileName);
-    res.json({ message: "Upload successful", url: result.Location });
+    req.file?.buffer;
+
+    const params = {
+      Bucket: bucketName,
+      Key: req.file?.originalname,
+      Body: req.file?.buffer,
+      ContentType: req.file?.mimetype,
+    };
+
+    const command = new PutObjectCommand(params);
+
+    await s3.send(command);
+
+    return res.status(200).json({
+      message: "File uploaded successfully",
+      fileName: req.file?.originalname,
+      fileType: req.file?.mimetype,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Upload failed" });
