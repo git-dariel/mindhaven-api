@@ -1,5 +1,6 @@
 import { config } from "../config/common";
 import NodeCache from "node-cache";
+import crypto from "crypto";
 
 /**
  * Cleans the response text by removing extra newlines and spaces
@@ -86,3 +87,6 @@ export const ttsCache = new NodeCache({
   checkperiod: 600,
   useClones: false,
 });
+
+
+export const randomImageName = (bytes = 32) => crypto.randomBytes(bytes).toString("hex");

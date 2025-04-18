@@ -1,7 +1,6 @@
 import { User, CreateUserInput } from "../types/user.types";
 import { SearchOptions } from "../types/search.types";
 import { PrismaClient } from "@prisma/client";
-
 const prisma = new PrismaClient();
 
 const UserRepository = {
@@ -28,7 +27,7 @@ async function getUserById(id: string) {
 
 async function getAllUser() {
   try {
-    return await prisma.user.findMany();
+    return await prisma.user.findMany({ orderBy: [{ createdAt: "desc" }] });
   } catch (error) {
     console.error("Error finding all users:", error);
     throw error;
@@ -49,16 +48,11 @@ async function createUser(data: CreateUserInput) {
   }
 }
 
-async function updateUser(id: string, data: Partial<User>) {
+async function updateUser(id: string, data: Partial<CreateUserInput>) {
   try {
-    const updateData = {
-      ...data,
-      updatedAt: new Date(),
-    };
-
     return await prisma.user.update({
       where: { id },
-      data: updateData,
+      data: data,
     });
   } catch (error) {
     console.error("Error updating user:", error);
@@ -101,7 +95,13 @@ async function searchUser(options: SearchOptions) {
               {
                 text: {
                   query: query,
-                  path: ["firstName", "lastName", "email", "userName", "studentNumber"],
+                  path: [
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "userName",
+                    "studentNumber",
+                  ],
                   fuzzy: {
                     maxEdits: 2,
                     prefixLength: 1,

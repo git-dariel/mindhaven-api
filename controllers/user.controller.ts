@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
 import UserService from "../services/user.service";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { bucketName, s3 } from "../helper/aws";
+import { randomImageName } from "../helper/common";
 
 const UserController = {
   getUser,
@@ -8,6 +11,7 @@ const UserController = {
   updateUser,
   deleteUser,
   searchUsers,
+  uploadProfilePicture,
 };
 
 export default UserController;
@@ -148,5 +152,51 @@ async function searchUsers(req: Request, res: Response) {
       error: "Failed to search users",
       details: error instanceof Error ? error.message : "Unknown error",
     });
+  }
+}
+
+/*
+ * @desc   Upload Profile Picture
+ * @route  POST /api/user/upload
+ * @access Private
+ */
+async function uploadProfilePicture(req: Request, res: Response){
+  try {
+    const userId = req.body.userId;
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const imageName = randomImageName();
+
+    const params = {
+      Bucket: bucketName,
+      Key: imageName,
+      Body: req.file?.buffer,
+      ContentType: req.file?.mimetype,
+    };
+
+    const command = new PutObjectCommand(params);
+    await s3.send(command);
+
+    const user = await UserService.getUserById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    await UserService.updateUser(userId, {
+      profilePicture: imageName,
+      updatedAt: new Date(),
+    });
+
+    res.status(200).json({
+      message: "File uploaded successfully",
+      fileName: randomImageName(),
+      fileType: req.file?.mimetype,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Upload failed" });
   }
 }

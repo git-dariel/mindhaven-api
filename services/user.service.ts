@@ -1,6 +1,9 @@
 import UserRepository from "../repositories/user.repository";
-import { User, Status, CreateUserInput } from "../types/user.types";
+import { Status, CreateUserInput } from "../types/user.types";
 import { SearchOptions } from "../types/search.types";
+import { bucketName, s3 } from "../helper/aws";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
 
 const UserService = {
   getUserById,
@@ -13,12 +16,28 @@ const UserService = {
 
 export default UserService;
 
+// TODO: Also implement the get signed URL for the profile picture
 async function getUserById(id: string) {
   return await UserRepository.getUserById(id);
 }
 
 async function getAllUsers() {
-  return await UserRepository.getAllUser();
+  const users = await UserRepository.getAllUser();
+
+  for (const user of users) {
+    if (user.profilePicture) {
+      const getObjectParams = {
+        Bucket: bucketName,
+        Key: user.profilePicture,
+      };
+
+      const command = new GetObjectCommand(getObjectParams);
+      const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+      user.profilePicture = url;
+    }
+  }
+
+  return users;
 }
 
 async function createUser(data: CreateUserInput) {
@@ -33,7 +52,7 @@ async function createUser(data: CreateUserInput) {
   return await UserRepository.createUser(userData);
 }
 
-async function updateUser(id: string, data: Partial<User>) {
+async function updateUser(id: string, data: Partial<CreateUserInput>) {
   const updateData = {
     ...data,
     updatedAt: new Date(),
