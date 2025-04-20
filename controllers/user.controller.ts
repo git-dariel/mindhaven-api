@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import UserService from "../services/user.service";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { bucketName, s3 } from "../helper/aws";
 import { randomImageName } from "../helper/common";
 
@@ -12,6 +12,7 @@ const UserController = {
   deleteUser,
   searchUsers,
   uploadProfilePicture,
+  deleteProfilePicture,
 };
 
 export default UserController;
@@ -160,7 +161,7 @@ async function searchUsers(req: Request, res: Response) {
  * @route  POST /api/user/upload
  * @access Private
  */
-async function uploadProfilePicture(req: Request, res: Response){
+async function uploadProfilePicture(req: Request, res: Response) {
   try {
     const userId = req.body.userId;
     if (!userId) {
@@ -198,5 +199,47 @@ async function uploadProfilePicture(req: Request, res: Response){
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Upload failed" });
+  }
+}
+
+/*
+ * @desc   Delete Profile Picture
+ * @route  POST /api/user/delete
+ * @access Private
+ */
+async function deleteProfilePicture(req: Request, res: Response) {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const user = await UserService.getUserById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const params = {
+      Bucket: bucketName,
+      Key: user.profilePicture,
+    };
+
+    const command = new DeleteObjectCommand(params);
+
+    await s3.send(command);
+
+    await UserService.updateUser(userId, {
+      profilePicture: "",
+      updatedAt: new Date(),
+    });
+
+    return res.status(200).json({
+      message: "File deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to delete" });
   }
 }

@@ -15,5 +15,6 @@ router.post("/create", UserController.createUser);
 router.put("/update/:id", UserController.updateUser);
 router.delete("/delete/:id", UserController.deleteUser);
 router.post("/upload", upload.single("file"), UserController.uploadProfilePicture);
+router.put("/delete", UserController.deleteProfilePicture);
 
 export default router;
