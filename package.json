@@ -29,7 +29,8 @@
         "express-rate-limit": "^7.2.0",
         "multer": "^1.4.5-lts.2",
         "node-cache": "^5.1.2",
-        "path": "^0.12.7"
+        "path": "^0.12.7",
+        "zod": "^3.24.3"
     },
     "devDependencies": {
         "@prisma/client": "^6.6.0",

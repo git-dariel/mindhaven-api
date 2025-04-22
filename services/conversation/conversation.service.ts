@@ -2,7 +2,7 @@ import GeminiService from "../gemini/gemini.service";
 import TTSService from "../text-to-speech/tts.service";
 import { formatForTTS, extractInsertedId } from "../..//shared/helper/common";
 import ConversationRepository from "./conversation.repository";
-import { MessageRole, Message } from "./conversation.model";
+import { Message } from "./conversation.model";
 
 const ConversationService = {
   generateSpeechResponse,
@@ -43,7 +43,7 @@ async function createConversation(data: {
   title?: string;
   messages?: {
     content: string;
-    role: MessageRole;
+    role: "user" | "assistant";
     createdAt?: Date;
   }[];
 }) {
@@ -60,7 +60,7 @@ async function createConversation(data: {
 
 async function updateConversation(
   conversationId: string,
-  message: { content: string; role: MessageRole }
+  message: { content: string; role: "user" | "assistant" }
 ) {
   try {
     const now = new Date();
@@ -116,7 +116,7 @@ async function generateSpeechResponse(prompt: string, userId?: string) {
       messages: [
         {
           content: prompt,
-          role: MessageRole.USER,
+          role: "user",
           createdAt: new Date(),
         },
       ],
@@ -143,7 +143,7 @@ async function generateSpeechResponse(prompt: string, userId?: string) {
     // Add the assistant's response as a new message
     await ConversationService.updateConversation(conversationId, {
       content: textResponse,
-      role: MessageRole.ASSISTANT,
+      role: "assistant",
     });
 
     return {
@@ -185,7 +185,7 @@ async function generateSupportiveSpeechResponse(input: string, userId?: string) 
         messages: [
           {
             content: input,
-            role: MessageRole.USER,
+            role: "user",
             createdAt: new Date(),
           },
         ],
@@ -196,7 +196,7 @@ async function generateSupportiveSpeechResponse(input: string, userId?: string) 
       // Add the assistant's response
       await ConversationService.updateConversation(conversationId, {
         content: textResponse,
-        role: MessageRole.ASSISTANT,
+        role: "assistant",
       });
 
       return conversationId;

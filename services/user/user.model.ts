@@ -1,31 +1,17 @@
-export type Status = "active" | "inactive" | "suspended" | "deleted";
+import z from "zod";
 
-export type User = {
-  id: string;
-  studentNumber: string;
-  firstName: string;
-  lastName: string;
-  middleName?: string;
-  userName: string;
-  email: string;
-  status: Status;
-  profilePicture?: string;
-  password: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
+export const UserSchema = z.object({
+  studentNumber: z.string(),
+  firstName: z.string(),
+  middleName: z.string().optional(),
+  lastName: z.string(),
+  userName: z.string(),
+  email: z.string().email(),
+  password: z.string().min(8),
+  status: z.enum(["active", "inactive", "suspended", "deleted"]),
+  profilePicture: z.string().optional(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+});
 
-// Type for creating a new user with required and optional fields clearly defined
-export type CreateUserInput = {
-  studentNumber: string;
-  firstName: string;
-  lastName: string;
-  userName: string;
-  email: string;
-  password: string;
-  status: Status;
-  middleName?: string;
-  profilePicture?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-};
+export type User = z.infer<typeof UserSchema>;

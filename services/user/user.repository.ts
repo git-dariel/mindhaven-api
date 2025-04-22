@@ -1,4 +1,4 @@
-import { User, CreateUserInput } from "./user.model";
+import { User } from "./user.model";
 import { SearchOptions } from "../../shared/types/search.types";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
@@ -34,7 +34,7 @@ async function getAllUser() {
   }
 }
 
-async function createUser(data: CreateUserInput) {
+async function createUser(data: User) {
   try {
     return await prisma.user.create({
       data: {
@@ -48,7 +48,7 @@ async function createUser(data: CreateUserInput) {
   }
 }
 
-async function updateUser(id: string, data: Partial<CreateUserInput>) {
+async function updateUser(id: string, data: Partial<User>) {
   try {
     return await prisma.user.update({
       where: { id },

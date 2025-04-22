@@ -1,5 +1,5 @@
 import UserRepository from "./user.repository";
-import { Status, CreateUserInput } from "./user.model";
+import { User } from "./user.model";
 import { SearchOptions } from "../../shared/types/search.types";
 import { bucketName, s3 } from "../../shared/helper/aws";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -40,11 +40,10 @@ async function getAllUsers() {
   return users;
 }
 
-async function createUser(data: CreateUserInput) {
-  // Set default values for new users
-  const userData = {
+async function createUser(data: User) {
+  const userData: User = {
     ...data,
-    status: "active" as Status,
+    status: "active",
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -52,7 +51,7 @@ async function createUser(data: CreateUserInput) {
   return await UserRepository.createUser(userData);
 }
 
-async function updateUser(id: string, data: Partial<CreateUserInput>) {
+async function updateUser(id: string, data: Partial<User>) {
   const updateData = {
     ...data,
     updatedAt: new Date(),
