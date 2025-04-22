@@ -123,26 +123,59 @@ The API includes error handling for:
 - TTS service errors
 - General server errors
 
-## Project Structure
+## Project Structure (SOA + MVC + Monorepo Style)
 
 ```
 mindhaven-api/
 ├── config/
-│   └── common.ts
-├── controllers/
-│   ├── server.controller.ts
-│   └── tts.controller.ts
-├── helper/
-│   └── tts.helper.ts
-├── routes/
-│   └── tts.routes.ts
+│   ├── common.ts
+│   └── database.ts
+├── credentials/
+│   └── mindhaven-tts-e1026fbd1dc1.json
+├── prisma/
+│   └── schema.prisma
 ├── services/
-│   └── tts.service.ts
-├── utils/
-│   └── tts.utils.ts
+│   ├── conversation/
+│   │   ├── conversation.controller.ts
+│   │   ├── conversation.model.ts
+│   │   ├── conversation.repository.ts
+│   │   ├── conversation.routes.ts
+│   │   └── conversation.service.ts
+│   ├── gemini/
+│   │   ├── gemini.controller.ts
+│   │   ├── gemini.routes.ts
+│   │   └── gemini.service.ts
+│   ├── server/
+│   │   ├── server.controller.ts
+│   │   └── server.routes.ts
+│   ├── text-to-speech/
+│   │   ├── tts.controller.ts
+│   │   ├── tts.routes.ts
+│   │   └── tts.service.ts
+│   └── user/
+│       ├── user.controller.ts
+│       ├── user.model.ts
+│       ├── user.repository.ts
+│       ├── user.routes.ts
+│       └── user.service.ts
+├── shared/
+│   ├── helper/
+│   │   ├── aws.ts
+│   │   ├── common.ts
+│   │   └── tts.helper.ts
+│   ├── middleware/
+│   │   └── errorHandler.ts
+│   ├── types/
+│   │   └── search.types.ts
+│   └── utils/
+│       ├── gemini.utils.ts
+│       └── tts.utils.ts
+├── test/
+│   └── test.upload.ts
 ├── .env
 ├── .gitignore
+├── index.ts
 ├── package.json
-├── tsconfig.json
-└── index.ts
+├── README.md
+└── tsconfig.json
 ```
