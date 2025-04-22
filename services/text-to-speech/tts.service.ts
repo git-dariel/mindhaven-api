@@ -1,5 +1,5 @@
-import { splitIntoChunks, ttsCache } from "../helper/common";
-import { client } from "../helper/tts.helper";
+import { splitIntoChunks, ttsCache } from "../../shared/helper/common";
+import { client } from "../../shared/helper/tts.helper";
 
 const TTSService = {
   synthesizeSpeech,

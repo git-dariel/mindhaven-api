@@ -1,5 +1,5 @@
-import { User, CreateUserInput } from "../types/user.types";
-import { SearchOptions } from "../types/search.types";
+import { User, CreateUserInput } from "./user.model";
+import { SearchOptions } from "../../shared/types/search.types";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
@@ -95,13 +95,7 @@ async function searchUser(options: SearchOptions) {
               {
                 text: {
                   query: query,
-                  path: [
-                    "firstName",
-                    "lastName",
-                    "email",
-                    "userName",
-                    "studentNumber",
-                  ],
+                  path: ["firstName", "lastName", "email", "userName", "studentNumber"],
                   fuzzy: {
                     maxEdits: 2,
                     prefixLength: 1,

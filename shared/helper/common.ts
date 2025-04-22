@@ -1,4 +1,4 @@
-import { config } from "../config/common";
+import { config } from "../../config/common";
 import NodeCache from "node-cache";
 import crypto from "crypto";
 

@@ -1,7 +1,7 @@
-import UserRepository from "../repositories/user.repository";
-import { Status, CreateUserInput } from "../types/user.types";
-import { SearchOptions } from "../types/search.types";
-import { bucketName, s3 } from "../helper/aws";
+import UserRepository from "./user.repository";
+import { Status, CreateUserInput } from "./user.model";
+import { SearchOptions } from "../../shared/types/search.types";
+import { bucketName, s3 } from "../../shared/helper/aws";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 

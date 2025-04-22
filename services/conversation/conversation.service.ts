@@ -1,8 +1,8 @@
-import GeminiService from "./gemini.service";
-import TTSService from "./tts.service";
-import { formatForTTS, extractInsertedId } from "../helper/common";
-import ConversationRepository from "../repositories/conversation.repository";
-import { MessageRole, Message } from "../types/conversation.types";
+import GeminiService from "../gemini/gemini.service";
+import TTSService from "../text-to-speech/tts.service";
+import { formatForTTS, extractInsertedId } from "../..//shared/helper/common";
+import ConversationRepository from "./conversation.repository";
+import { MessageRole, Message } from "./conversation.model";
 
 const ConversationService = {
   generateSpeechResponse,

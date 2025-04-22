@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { bucketName, s3 } from "../helper/aws";
+import { bucketName, s3 } from "../shared/helper/aws";
 import multer from "multer";
 import crypto from "crypto";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";

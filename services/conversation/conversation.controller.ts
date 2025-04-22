@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ConversationService from "../services/conversation.service";
+import ConversationService from "./conversation.service";
 
 const ConversationController = {
   generateSpeechResponse,

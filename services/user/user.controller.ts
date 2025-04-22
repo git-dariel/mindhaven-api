@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import UserService from "../services/user.service";
+import UserService from "./user.service";
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { bucketName, s3 } from "../helper/aws";
-import { randomImageName } from "../helper/common";
+import { bucketName, s3 } from "../../shared/helper/aws";
+import { randomImageName } from "../../shared/helper/common";
 
 const UserController = {
   getUser,
