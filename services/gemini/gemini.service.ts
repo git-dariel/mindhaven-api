@@ -1,6 +1,6 @@
-import { generalModel, supportiveModel } from "../utils/gemini.utils";
-import { MENTAL_HEALTH_GUIDELINES } from "../config/common";
-import { cleanResponseText } from "../helper/common";
+import { generalModel, supportiveModel } from "../../shared/utils/gemini.utils";
+import { MENTAL_HEALTH_GUIDELINES } from "../../config/common";
+import { cleanResponseText } from "../../shared/helper/common";
 
 const GeminiService = {
   generateResponse,

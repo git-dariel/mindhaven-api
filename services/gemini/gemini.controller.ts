@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import GeminiService from "../services/gemini.service";
+import GeminiService from "./gemini.service";
 
 const GeminiController = {
   generateResponse,

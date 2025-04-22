@@ -2,13 +2,15 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import ttsRoutes from "./routes/tts.routes";
-import geminiRoutes from "./routes/gemini.routes";
-import serverRoutes from "./routes/server.routes";
-import conversationRoutes from "./routes/conversation.routes";
-import { errorHandler } from "./middleware/errorHandler";
+import ttsRoutes from "./services/text-to-speech/tts.routes";
+import geminiRoutes from "./services/gemini/gemini.routes";
+import serverRoutes from "./services/server/server.routes";
+import conversationRoutes from "./services/conversation/conversation.routes";
+import userRoutes from "./services/user/user.routes";
+import { errorHandler } from "./shared/middleware/errorHandler";
 import { config } from "./config/common";
 import prisma from "./config/database";
+import testUpload from "./test/test.upload";
 
 const app = express();
 const port = process.env.PORT || config.PORT;
@@ -29,6 +31,8 @@ app.use("/api", serverRoutes);
 app.use("/api/tts", ttsRoutes);
 app.use("/api/gemini", geminiRoutes);
 app.use("/api/conversation", conversationRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/test", testUpload);
 
 // Error handling
 app.use(errorHandler);

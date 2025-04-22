@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import TTSService from "../services/tts.service";
+import TTSService from "./tts.service";
 
 const TTSController = {
   synthesize,

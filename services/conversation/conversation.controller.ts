@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ConversationService from "../services/conversation.service";
+import ConversationService from "./conversation.service";
 
 const ConversationController = {
   generateSpeechResponse,
@@ -12,6 +12,11 @@ const ConversationController = {
 
 export default ConversationController;
 
+/*
+ * @desc   get by id conversation
+ * @route  GET /api/conversation/get/:id
+ * @access Private
+ */
 async function getConversation(req: Request, res: Response) {
   try {
     const { id } = req.params;
@@ -36,6 +41,11 @@ async function getConversation(req: Request, res: Response) {
   }
 }
 
+/*
+ * @desc   get all conversation
+ * @route  GET /api/conversation/get/all
+ * @access Private
+ */
 async function getAllConversations(req: Request, res: Response) {
   try {
     const { userId, includeArchived } = req.query;
@@ -53,6 +63,11 @@ async function getAllConversations(req: Request, res: Response) {
   }
 }
 
+/*
+ * @desc   delete conversation
+ * @route  GET /api/conversation/delete/:id
+ * @access Private
+ */
 async function deleteConversation(req: Request, res: Response) {
   try {
     const { id } = req.params;
@@ -72,6 +87,11 @@ async function deleteConversation(req: Request, res: Response) {
   }
 }
 
+/*
+ * @desc   search conversation
+ * @route  GET /api/conversation/search
+ * @access Private
+ */
 async function searchConversations(req: Request, res: Response) {
   try {
     const { query, userId } = req.query;
@@ -94,6 +114,11 @@ async function searchConversations(req: Request, res: Response) {
   }
 }
 
+/*
+ * @desc   create normal conversation
+ * @route  GET /api/conversation/create/normal
+ * @access Private
+ */
 async function generateSpeechResponse(req: Request, res: Response) {
   try {
     const { prompt } = req.body;
@@ -130,6 +155,11 @@ async function generateSpeechResponse(req: Request, res: Response) {
   }
 }
 
+/*
+ * @desc   create supportive conversation
+ * @route  GET /api/conversation/create/supportive
+ * @access Private
+ */
 async function generateSupportiveSpeechResponse(req: Request, res: Response) {
   try {
     const { input } = req.body;
