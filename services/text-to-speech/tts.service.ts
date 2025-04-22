@@ -1,13 +1,5 @@
-import { client } from "../helper/tts.helper";
-import NodeCache from "node-cache";
-import { config } from "../config/common";
-
-// Initialize cache with 1 hour TTL and check period of 600 seconds
-const ttsCache = new NodeCache({
-  stdTTL: 3600,
-  checkperiod: 600,
-  useClones: false,
-});
+import { splitIntoChunks, ttsCache } from "../../shared/helper/common";
+import { client } from "../../shared/helper/tts.helper";
 
 const TTSService = {
   synthesizeSpeech,
@@ -17,27 +9,45 @@ export default TTSService;
 
 async function synthesizeSpeech(text: string) {
   try {
-    // Check cache first
+    console.log("Synthesizing speech for text:", text);
+
     const cacheKey = Buffer.from(text).toString("base64");
     const cachedAudio = ttsCache.get(cacheKey);
     if (cachedAudio) {
       return cachedAudio;
     }
 
-    // Split long text into chunks for parallel processing
     const chunks = splitIntoChunks(text);
 
-    // Process all chunks in parallel
     const audioPromises = chunks.map((chunk) => synthesizeChunk(chunk));
     const audioContents = await Promise.all(audioPromises);
 
-    // Filter out any null values and combine audio contents
     const validAudioContents = audioContents.filter(
       (content): content is Buffer => content !== null
     );
-    const combinedAudio = Buffer.concat(validAudioContents);
 
-    // Cache the result
+    const periodSilence = Buffer.from(new Array(2580).fill(0x00));
+    const chunkSilence = Buffer.from(new Array(1200).fill(0x00));
+
+    const fadeLength = 800;
+    const fadeOutSilence = Buffer.from(
+      Array.from({ length: fadeLength }, (_, i) => {
+        const fadeRatio = Math.pow(1 - i / fadeLength, 2);
+        return Math.floor(fadeRatio * 0x7f);
+      })
+    );
+
+    const combinedAudio = Buffer.concat(
+      validAudioContents.flatMap((content, i) => {
+        const isLastChunk = i === validAudioContents.length - 1;
+        const endsWithPeriod = chunks[i].trim().endsWith(".");
+
+        if (isLastChunk) return [content, fadeOutSilence];
+        if (endsWithPeriod) return [content, periodSilence];
+        return [content, chunkSilence];
+      })
+    );
+
     ttsCache.set(cacheKey, combinedAudio);
 
     return combinedAudio;
@@ -47,53 +57,28 @@ async function synthesizeSpeech(text: string) {
   }
 }
 
-function splitIntoChunks(text: string): string[] {
-  const words = text.split(" ");
-  const chunks: string[] = [];
-  let currentChunk: string[] = [];
-  let currentLength = 0;
-
-  for (const word of words) {
-    if (currentLength + word.length > config.MAX_CHUNK_LENGTH) {
-      chunks.push(currentChunk.join(" "));
-      currentChunk = [word];
-      currentLength = word.length;
-    } else {
-      currentChunk.push(word);
-      currentLength += word.length;
-    }
-  }
-
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk.join(" "));
-  }
-
-  return chunks;
-}
-
 async function synthesizeChunk(text: string): Promise<Buffer | null> {
   const request = {
     input: { text },
     voice: {
       languageCode: "en-US",
-      name: "en-US-Chirp-HD-F",
+      name: "en-US-Chirp-HD-D",
       ssmlGender: "FEMALE" as const,
     },
     audioConfig: {
       audioEncoding: "MP3" as const,
-      effectsProfileId: ["headphone-class-device"],
-      speakingRate: 1.0,
+      speakingRate: 0.9,
       pitch: 0,
       volumeGainDb: 2.0,
-      sampleRateHertz: 16000,
+      sampleRateHertz: 24000,
       optimizeForTurnaround: true,
+      effectsProfileId: ["headphone-class-device"],
     },
   };
 
   const [response] = await client.synthesizeSpeech(request);
   if (!response.audioContent) return null;
 
-  // Handle both Uint8Array and string types
   if (response.audioContent instanceof Uint8Array) {
     return Buffer.from(response.audioContent.buffer);
   }

@@ -1,6 +1,6 @@
 import { Router } from "express";
-import TTSController from "../controllers/tts.controller";
-import ServerController from "../controllers/server.controller";
+import TTSController from "./tts.controller";
+import ServerController from "../server/server.controller";
 
 const router = Router();
 

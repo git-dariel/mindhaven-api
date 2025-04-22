@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { config } from "../config/common";
+import { config } from "../../config/common";
 
 const ServerController = {
   server,
