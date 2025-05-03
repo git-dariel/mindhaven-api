@@ -17,31 +17,45 @@ export function cleanResponseText(text: string): string {
  * while staying within API limits
  */
 export function formatForTTS(text: string): string {
-  // Remove markdown formatting
-  text = text.replace(/\*\*/g, "");
-  text = text.replace(/\*/g, "");
+  // Remove all markdown and special characters
+  text = text
+    .replace(/```[\s\S]*?```/g, "") // Remove code blocks completely
+    .replace(/#{1,6}\s?/g, "") // Remove heading markers
+    .replace(/\*\*/g, "") // Remove bold markers
+    .replace(/\*/g, "") // Remove italic markers
+    .replace(/\\boxed{/g, "") // Remove boxed markers
+    .replace(/[`{}\\#_~]/g, "") // Remove special characters
+    .replace(/\n+/g, " ") // Replace newlines with spaces
+    .replace(/\s+/g, " ") // Replace multiple spaces with single space
+    .replace(/\s+\./g, ".") // Fix spacing before periods
+    .replace(/\s+,/g, ",") // Fix spacing before commas
+    .trim();
 
-  // Split into paragraphs
-  const paragraphs = text.split("\n\n").filter((p) => p.trim());
+  // Split into sentences and clean each one
+  const sentences = text
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 
-  // Always include the first paragraph (greeting/acknowledgment)
-  let formattedText = paragraphs[0];
-
-  // Try to add the second paragraph if it contains key points
-  if (paragraphs[1] && formattedText.length + paragraphs[1].length < config.MAX_RESPONSE_LENGTH) {
-    formattedText += "\n\n" + paragraphs[1];
+  if (sentences.length === 0) {
+    return "";
   }
 
-  // Add the first suggestion if there's room
-  if (paragraphs[2] && formattedText.length + paragraphs[2].length < config.MAX_RESPONSE_LENGTH) {
-    // Extract just the first suggestion without the bullet point
-    const suggestion = paragraphs[2].replace(/^\*\s+/, "");
-    formattedText += "\n\n" + suggestion;
+  // Always include the first sentence
+  let formattedText = sentences[0];
+
+  // Add subsequent sentences if they fit within limits
+  for (let i = 1; i < sentences.length; i++) {
+    const nextSentence = sentences[i];
+    if (formattedText.length + nextSentence.length + 1 < config.MAX_RESPONSE_LENGTH) {
+      formattedText += " " + nextSentence;
+    } else {
+      break;
+    }
   }
 
   return formattedText.trim();
 }
-
 /**
  * Extract the ID from Prisma response
  */
@@ -87,6 +101,5 @@ export const ttsCache = new NodeCache({
   checkperiod: 600,
   useClones: false,
 });
-
 
 export const randomImageName = (bytes = 32) => crypto.randomBytes(bytes).toString("hex");

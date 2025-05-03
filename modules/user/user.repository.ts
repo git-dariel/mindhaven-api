@@ -134,7 +134,7 @@ async function searchUser(options: SearchOptions) {
     if (select) {
       const projection: Record<string, 1> = {};
       select.forEach((field) => {
-        projection[field] = 1;
+        projection[field.toString()] = 1;
       });
       pipeline.push({ $project: projection });
     }
