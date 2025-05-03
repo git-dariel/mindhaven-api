@@ -2,11 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import ttsRoutes from "./services/text-to-speech/tts.routes";
-import geminiRoutes from "./services/gemini/gemini.routes";
-import serverRoutes from "./services/server/server.routes";
-import conversationRoutes from "./services/conversation/conversation.routes";
-import userRoutes from "./services/user/user.routes";
+import modules from "./modules/app.module";
 import { errorHandler } from "./shared/middleware/errorHandler";
 import { config } from "./config/common";
 import prisma from "./config/database";
@@ -27,11 +23,11 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Routes
-app.use("/api", serverRoutes);
-app.use("/api/tts", ttsRoutes);
-app.use("/api/gemini", geminiRoutes);
-app.use("/api/conversation", conversationRoutes);
-app.use("/api/user", userRoutes);
+app.use("/api", modules.serverRoutes);
+app.use("/api/tts", modules.ttsRoutes);
+app.use("/api/gemini", modules.geminiRoutes);
+app.use("/api/conversation", modules.conversationRoutes);
+app.use("/api/user", modules.userRoutes);
 app.use("/api/test", testUpload);
 
 // Error handling

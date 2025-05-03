@@ -1,8 +1,8 @@
+import { extractInsertedId, formatForTTS } from "../..//shared/helper/common";
 import GeminiService from "../gemini/gemini.service";
 import TTSService from "../text-to-speech/tts.service";
-import { formatForTTS, extractInsertedId } from "../..//shared/helper/common";
-import ConversationRepository from "./conversation.repository";
 import { Message } from "./conversation.model";
+import ConversationRepository from "./conversation.repository";
 
 const ConversationService = {
   generateSpeechResponse,
@@ -160,56 +160,53 @@ async function generateSpeechResponse(prompt: string, userId?: string) {
 
 async function generateSupportiveSpeechResponse(input: string, userId?: string) {
   try {
-    // Start all async operations in parallel immediately
-    const titlePromise = GeminiService.generateConversationTitle(input);
-    const textResponsePromise = GeminiService.generateSupportiveResponse(input);
+    // Run all initial operations in parallel
+    const [textResponse, title] = await Promise.all([
+      GeminiService.generateSupportiveResponse(input),
+      GeminiService.generateConversationTitle(input),
+    ]);
 
-    // Wait for text response first since we need it for audio
-    const textResponse = await textResponsePromise;
     if (!textResponse || typeof textResponse !== "string") {
       throw new Error("Failed to generate supportive response");
     }
 
-    // Format and start TTS immediately after getting text
+    // Format text and start TTS conversion immediately
     const formattedText = formatForTTS(textResponse);
     const audioPromise = TTSService.synthesizeSpeech(formattedText);
 
-    // Handle conversation creation in parallel with audio generation
-    const [title, audioContent] = await Promise.all([titlePromise, audioPromise]);
-
-    // Create conversation after we have audio (non-blocking for response)
+    // Start conversation creation in parallel with audio processing
     const conversationPromise = (async () => {
-      const conversationResult = await ConversationRepository.createConversation({
-        userId,
-        title,
-        messages: [
-          {
-            content: input,
-            role: "user",
-            createdAt: new Date(),
-          },
-        ],
-      });
+      try {
+        const conversationResult = await ConversationRepository.createConversation({
+          userId,
+          title: title || "Untitled Conversation",
+          messages: [{ content: input, role: "user", createdAt: new Date() }],
+        });
 
-      const conversationId = extractInsertedId(conversationResult);
+        const conversationId = extractInsertedId(conversationResult);
 
-      // Add the assistant's response
-      await ConversationService.updateConversation(conversationId, {
-        content: textResponse,
-        role: "assistant",
-      });
+        // Fire and forget conversation update
+        ConversationService.updateConversation(conversationId, {
+          content: textResponse,
+          role: "assistant",
+        }).catch((err) => console.error("Error updating conversation:", err));
 
-      return conversationId;
+        return conversationId;
+      } catch (err) {
+        console.error("Error creating conversation:", err);
+        return null;
+      }
     })();
 
-    // Get conversation ID but don't block audio return
-    const conversationId = await conversationPromise;
+    // Wait for audio conversion
+    const audioContent = await audioPromise;
 
+    // Return results as soon as audio is ready
     return {
       text: textResponse,
       audio: audioContent,
       isTruncated: formattedText.length < textResponse.length,
-      conversationId: conversationId,
+      conversationId: await conversationPromise,
     };
   } catch (error) {
     console.error("Error generating supportive speech response:", error);
