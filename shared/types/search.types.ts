@@ -1,4 +1,4 @@
-import { User } from "../../services/user/user.model";
+import { User } from "../../modules/user/user.model";
 
 export type SortOrder = "asc" | "desc";
 

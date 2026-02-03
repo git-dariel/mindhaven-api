@@ -1,6 +1,6 @@
 import GeminiService from "../gemini/gemini.service";
 import TTSService from "../text-to-speech/tts.service";
-import { formatForTTS, extractInsertedId } from "../..//shared/helper/common";
+import { formatForTTS, extractInsertedId } from "../../shared/helper/common";
 import ConversationRepository from "./conversation.repository";
 import { Message } from "./conversation.model";
 
