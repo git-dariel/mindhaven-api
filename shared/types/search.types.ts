@@ -1,4 +1,4 @@
-import { User } from "../../modules/user/user.model";
+import { User } from "../../modules/user/user.model.ts";
 
 export type SortOrder = "asc" | "desc";
 
