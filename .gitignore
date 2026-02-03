@@ -46,3 +46,4 @@ temp/
 prisma/*.db
 prisma/migrations/
 /generated/prisma
+prisma/generated/
