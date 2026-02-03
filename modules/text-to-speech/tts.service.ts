@@ -67,7 +67,7 @@ async function synthesizeChunk(text: string): Promise<Buffer | null> {
     },
     audioConfig: {
       audioEncoding: "MP3" as const,
-      speakingRate: 0.9,
+      speakingRate: 1.0,
       pitch: 0,
       volumeGainDb: 2.0,
       sampleRateHertz: 24000,
