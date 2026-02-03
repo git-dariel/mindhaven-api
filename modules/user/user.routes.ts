@@ -1,5 +1,5 @@
 import { Router } from "express";
-import UserController from "./user.controller";
+import UserController from "./user.controller.ts";
 import multer from "multer";
 
 const storage = multer.memoryStorage();

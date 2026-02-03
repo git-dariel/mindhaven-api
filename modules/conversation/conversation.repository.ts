@@ -1,5 +1,5 @@
-import { Conversation } from "./conversation.model";
-import prisma from "../../config/database";
+import { Conversation } from "./conversation.model.ts";
+import prisma from "../../config/database.ts";
 
 const ConversationRepository = {
   getConversationById,

@@ -1,4 +1,4 @@
-import { User } from "./user.model";
+import { User } from "./user.model.ts";
 import { SearchOptions } from "../../shared/types/search.types";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();

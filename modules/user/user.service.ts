@@ -1,7 +1,7 @@
-import UserRepository from "./user.repository";
-import { User } from "./user.model";
-import { SearchOptions } from "../../shared/types/search.types";
-import { bucketName, s3 } from "../../shared/helper/aws";
+import UserRepository from "./user.repository.ts";
+import { User } from "./user.model.ts";
+import { SearchOptions } from "../../shared/types/search.types.ts";
+import { bucketName, s3 } from "../../shared/helper/aws.ts";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 

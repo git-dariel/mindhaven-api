@@ -1,6 +1,10 @@
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function findTTSCredentialsFile(): string {
   const credentialsDir = path.resolve(__dirname, "../../credentials");

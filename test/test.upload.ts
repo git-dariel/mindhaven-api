@@ -1,10 +1,10 @@
 import express, { Request, Response } from "express";
 import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { bucketName, s3 } from "../shared/helper/aws";
+import { bucketName, s3 } from "../shared/helper/aws.ts";
 import multer from "multer";
 import crypto from "crypto";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import prisma from "../config/database";
+import prisma from "../config/database.ts";
 
 const router = express.Router();
 const storage = multer.memoryStorage();
