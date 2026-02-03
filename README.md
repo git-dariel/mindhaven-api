@@ -134,7 +134,7 @@ mindhaven-api/
 │   └── mindhaven-tts-e1026fbd1dc1.json
 ├── prisma/
 │   └── schema.prisma
-├── services/
+├── modules/
 │   ├── conversation/
 │   │   ├── conversation.controller.ts
 │   │   ├── conversation.model.ts
